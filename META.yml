@@ -15,19 +15,16 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300002, CPAN::Meta::Converter version 2.112621'
+generated_by: 'Dist::Zilla version 4.300003, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: MooX-Types-MooseLike
 requires:
-  Data::Dumper::Concise: 0
-  Exporter: 0
+  Exporter: 5.57
   List::Util: 0
   Scalar::Util: 0
-  Sub::Quote: 0
-  base: 0
   strict: 0
   strictures: 1
-version: 0.02
+version: 0.03

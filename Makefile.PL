@@ -19,7 +19,6 @@ my %WriteMakefileArgs = (
     "Moo" => 0,
     "Test::Fatal" => 0,
     "Test::More" => 0,
-    "perl" => "5.006",
     "warnings" => 0
   },
   "CONFIGURE_REQUIRES" => {
@@ -30,16 +29,13 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "MooX::Types::MooseLike",
   "PREREQ_PM" => {
-    "Data::Dumper::Concise" => 0,
-    "Exporter" => 0,
+    "Exporter" => "5.57",
     "List::Util" => 0,
     "Scalar::Util" => 0,
-    "Sub::Quote" => 0,
-    "base" => 0,
     "strict" => 0,
     "strictures" => 1
   },
-  "VERSION" => "0.02",
+  "VERSION" => "0.03",
   "test" => {
     "TESTS" => "t/*.t"
   }
