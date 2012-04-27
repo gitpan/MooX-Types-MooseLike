@@ -1,9 +1,6 @@
 use strictures 1;
 
 package MooX::Types::MooseLike::Base;
-{
-  $MooX::Types::MooseLike::Base::VERSION = '0.03';
-}
 use Scalar::Util qw(blessed);
 use List::Util;
 use MooX::Types::MooseLike;

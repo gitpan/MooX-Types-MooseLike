@@ -1,13 +1,41 @@
+NAME
+    MooX::Types::MooseLike - some Moosish types and a typer builder
 
+SYNOPSIS
+        # The Base and Numeric types are stable
+        # but the API to build new types is Experimental
+        package MyApp::Types;
+        use MooX::Types::MooseLike::Base;
+        use base qw(Exporter);
+        our @EXPORT_OK = ();
+        my $defs = [{ 
+          name => 'MyType', 
+          test => sub { predicate($_[0]) }, 
+          message => sub { "$_[0] is not the type we want!" }
+        }];
+        MooX::Types::MooseLike::register_types($defs, __PACKAGE__);
+        # optionally add an 'all' tag so one can:
+        # use MyApp::Types qw/:all/; # to import all types
+        our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-This archive contains the distribution MooX-Types-MooseLike,
-version 0.03:
+DESCRIPTION
+    See MooX::Types::MooseLike::Base for an example of how to build base
+    types.
 
-  Moose Like Types for Moo
+    See MooX::Types::MooseLike::Numeric for an example of how to build
+    subtypes.
 
-This software is copyright (c) 2012 by Mateu X Hunter.
+AUTHOR
+    mateu - Mateu X. Hunter (cpan:MATEU) <hunter@missoula.org>
 
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
+CONTRIBUTORS
+    mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
 
+COPYRIGHT
+    Copyright (c) 2011-2012 the MooX::Types::MooseLike "AUTHOR" and
+    "CONTRIBUTORS" as listed above.
+
+LICENSE
+    This library is free software and may be distributed under the same
+    terms as perl itself.
 

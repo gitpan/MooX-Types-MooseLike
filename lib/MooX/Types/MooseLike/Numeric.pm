@@ -1,9 +1,6 @@
 use strictures 1;
 
 package MooX::Types::MooseLike::Numeric;
-{
-  $MooX::Types::MooseLike::Numeric::VERSION = '0.03';
-}
 use MooX::Types::MooseLike::Base;
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
@@ -17,7 +14,7 @@ my $type_definitions = [
     message    => sub { "$_[0] is not a positive number!" },
   },
   {
-    name       => 'NonNegativeNum',
+    name       => 'PositiveOrZeroNum',
     subtype_of => 'Num',
     from       => 'MooX::Types::MooseLike::Base',
     test       => sub { $_[0] >= 0 },
@@ -31,7 +28,7 @@ my $type_definitions = [
     message    => sub { "$_[0] is not a positive integer!" },
   },
   {
-    name       => 'NonNegativeInt',
+    name       => 'PositiveOrZeroInt',
     subtype_of => 'Int',
     from       => 'MooX::Types::MooseLike::Base',
     test       => sub { $_[0] >= 0 },
@@ -45,7 +42,7 @@ my $type_definitions = [
     message    => sub { "$_[0] is not a negative number!" },
   },
   {
-    name       => 'NonPositiveNum',
+    name       => 'NegativeOrZeroNum',
     subtype_of => 'Num',
     from       => 'MooX::Types::MooseLike::Base',
     test       => sub { $_[0] <= 0 },
@@ -59,7 +56,7 @@ my $type_definitions = [
     message    => sub { "$_[0] is not a negative integer!" },
   },
   {
-    name       => 'NonPositiveInt',
+    name       => 'NegativeOrZeroInt',
     subtype_of => 'Int',
     from       => 'MooX::Types::MooseLike::Base',
     test       => sub { $_[0] <= 0 },
@@ -67,14 +64,16 @@ my $type_definitions = [
   },
   {
     name       => 'SingleDigit',
-    subtype_of => 'NonNegativeInt',
+    subtype_of => 'NegativeOrZeroInt',
     from       => 'MooX::Types::MooseLike::Numeric',
     test       => sub { $_[0] < 10 },
     message    => sub { "$_[0] is not a single digit!" },
   },
 ];
 
-MooX::Types::MooseLike::register_types($type_definitions, __PACKAGE__);
+MooX::Types::MooseLike::register_types(
+  $type_definitions, __PACKAGE__, 'MooseX::Types::Common::Numeric'
+);
 our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 1
@@ -107,19 +106,19 @@ Available types are listed below.
 
 =item PositiveNum
 
-=item NonNegativeNum
+=item PositiveOrZeroNum
 
 =item PositiveInt
 
-=item NonNegativeInt
+=item PositiveOrZeroInt
 
 =item NegativeNum
 
-=item NonPositiveNum
+=item NegativeOrZeroNum
 
 =item NegativeInt
 
-=item NonPositiveInt
+=item NegativeOrZeroInt
 
 =item SingleDigit
 

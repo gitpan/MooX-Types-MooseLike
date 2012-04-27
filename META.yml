@@ -1,30 +1,22 @@
 ---
-abstract: 'Moose Like Types for Moo'
+abstract: 'some Moosish types and a typer builder'
 author:
-  - 'Mateu X Hunter <hunter@missoula.org>'
+  - 'mateu - Mateu X. Hunter (cpan:MATEU) <hunter@missoula.org>'
 build_requires:
-  English: 0
-  File::Find: 0
-  File::Temp: 0
-  IO::Handle: 0
-  Moo: 0
-  Test::Fatal: 0
-  Test::More: 0
-  perl: 5.006
-  warnings: 0
+  ExtUtils::MakeMaker: 0
 configure_requires:
-  ExtUtils::MakeMaker: 6.30
-dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300003, CPAN::Meta::Converter version 2.112150'
+  ExtUtils::MakeMaker: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: MooX-Types-MooseLike
+no_index:
+  directory:
+    - t
+    - inc
 requires:
-  Exporter: 5.57
-  List::Util: 0
-  Scalar::Util: 0
-  strict: 0
-  strictures: 1
-version: 0.03
+  Moo: 0.009015
+version: 0.04
