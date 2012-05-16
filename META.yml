@@ -3,7 +3,8 @@ abstract: 'some Moosish types and a typer builder'
 author:
   - 'mateu - Mateu X. Hunter (cpan:MATEU) <hunter@missoula.org>'
 build_requires:
-  ExtUtils::MakeMaker: 0
+  Test::Fatal: 0.003
+  Test::More: 0.96
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 1
@@ -18,5 +19,9 @@ no_index:
     - t
     - inc
 requires:
-  Moo: 0.009015
-version: 0.04
+  Module::Runtime: 0.012
+  Moo: 0.091006
+  strictures: 1.001001
+resources:
+  x_IRC: irc://irc.perl.org/#web-simple
+version: 0.05
