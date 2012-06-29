@@ -43,5 +43,5 @@
    "resources" : {
       "x_IRC" : "irc://irc.perl.org/#web-simple"
    },
-   "version" : "0.06"
+   "version" : "0.07"
 }
