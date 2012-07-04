@@ -24,4 +24,4 @@ requires:
   strictures: 1.001001
 resources:
   x_IRC: irc://irc.perl.org/#web-simple
-version: 0.07
+version: 0.08

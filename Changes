@@ -1,3 +1,7 @@
+0.08 - 2012-07-03
+       - Support for parameterized type: Maybe
+         For example,  isa => Maybe[Int]
+
 0.07 - 2012-06-29
        - Support for parameterized types: ArrayRef, HashRef, ScalarRef
          This means one can now write: isa => ArrayRef[HashRef]
