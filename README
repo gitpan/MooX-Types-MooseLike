@@ -1,22 +1,45 @@
 NAME
-    MooX::Types::MooseLike - some Moosish types and a typer builder
+    MooX::Types::MooseLike - some Moosish types and a type builder
 
 SYNOPSIS
-        # The Base and Numeric types are stable
-        # but the API to build new types is Experimental
         package MyApp::Types;
         use MooX::Types::MooseLike::Base;
         use base qw(Exporter);
         our @EXPORT_OK = ();
-        my $defs = [{ 
-          name => 'MyType', 
-          test => sub { predicate($_[0]) }, 
+
+        # Define some types
+        my $defs = [{
+          name => 'MyType',
+          test => sub { predicate($_[0]) },
           message => sub { "$_[0] is not the type we want!" }
-        }];
+        },
+        {
+          name => 'MyLengthTypeWithParam',
+          test => sub {
+            my ($value, $param) = @_;
+            length($value) < $param;
+          },
+          message => sub { "$_[0] is too large! It should be less than $_[1]." }
+        }
+      ];
+
+        # Make the types available - this adds them to @EXPORT_OK automatically.
         MooX::Types::MooseLike::register_types($defs, __PACKAGE__);
-        # optionally add an 'all' tag so one can:
-        # use MyApp::Types qw/:all/; # to import all types
-        our %EXPORT_TAGS = ('all' => \@EXPORT_OK);
+
+        ...
+
+        # Somewhere in code that uses the type
+        package MyApp::Foo;
+        use Moo;
+        use MyApp::Types qw(MyType);
+        has attribute => (
+          is  => 'ro',
+          isa => MyType,
+        );
+
+        has string => (
+          isa => MyLengthTypeWithParam(25)
+        );
 
 DESCRIPTION
     See MooX::Types::MooseLike::Base for an example of how to build base
@@ -30,7 +53,8 @@ AUTHOR
 
 CONTRIBUTORS
     mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk> Mithaldu -
-    Christian Walde (cpan:MITHALDU) <walde.christian@googlemail.com>
+    Christian Walde (cpan:MITHALDU) <walde.christian@googlemail.com> Matt
+    Phillips (cpan:MATTP) <mattp@cpan.org>
 
 COPYRIGHT
     Copyright (c) 2011-2012 the MooX::Types::MooseLike "AUTHOR" and
