@@ -40,7 +40,7 @@ my $type_definitions = [
     #  	test    => sub { $_[0] == 0 || $_[0] == 1 },
     test => sub {
       !defined($_[0]) || $_[0] eq "" || "$_[0]" eq '1' || "$_[0]" eq '0';
-    },
+      },
     message => sub { "$_[0] is not a Boolean" },
   },
   {
@@ -76,21 +76,25 @@ my $type_definitions = [
     name    => 'Maybe',
     test    => sub { 1 },
     message => sub { 'Maybe only uses its parameterized type message' },
+    parameterizable => sub { return if (not defined $_[0]); $_[0] },
   },
   {
     name => 'ScalarRef',
     test => sub { ref($_[0]) eq 'SCALAR' },
     message => sub { "$_[0] is not an ScalarRef!" },
+    parameterizable => sub { ${ $_[0] } },
   },
   {
     name => 'ArrayRef',
     test => sub { ref($_[0]) eq 'ARRAY' },
     message => sub { "$_[0] is not an ArrayRef!" },
+    parameterizable => sub { @{ $_[0] } },
   },
   {
     name => 'HashRef',
     test => sub { ref($_[0]) eq 'HASH' },
     message => sub { "$_[0] is not a HashRef!" },
+    parameterizable => sub { values %{ $_[0] } },
   },
   {
     name => 'CodeRef',
@@ -112,7 +116,7 @@ my $type_definitions = [
     test => sub {
       Scalar::Util::openhandle($_[0])
         || (blessed($_[0]) && $_[0]->isa("IO::Handle"));
-    },
+      },
     message => sub { "$_[0] is not a FileHandle!" },
   },
   {
@@ -126,10 +130,40 @@ my $type_definitions = [
       (ref($_[0]) eq 'ARRAY')
         && ($_[0]->[0])
         && (List::Util::first { ref($_) eq 'HASH' } @{ $_[0] });
-    },
+      },
     message => sub { "$_[0] is not an ArrayRef[HashRef]!" },
   },
-];
+  {
+    name => 'InstanceOf',
+    test => sub {
+      my ($instance, $class) = (shift, shift);
+      blessed($instance) && (ref($instance) eq $class);
+      },
+    message => sub { "$_[0] is not an instance of $_[1]!" },
+  },
+  {
+    name => 'ConsumerOf',
+    test => sub {
+      my ($instance, $role) = (shift, shift);
+      $instance->can('does') && $instance->does($role);
+      },
+    message => sub { "$_[0] is not a consumer of the role: $_[1]!" },
+  },
+  {
+    name => 'HasMethods',
+    test => sub {
+      my ($instance, @methods) = (shift, @_);
+      my @missing_methods = grep { !$instance->can($_) } @methods;
+      return (scalar @missing_methods ? 0 : 1);
+      },
+    message => sub {
+      my $instance = shift;
+      my @missing_methods = grep { !$instance->can($_) } @_;
+      my $missing_methods = join ' ', @missing_methods;
+      return "$instance does not have the required methods: $missing_methods";
+      },
+  },
+  ];
 
 MooX::Types::MooseLike::register_types($type_definitions, __PACKAGE__);
 
@@ -270,6 +304,11 @@ A type that is an object (think blessed)
 ArrayRef, HashRef and ScalarRef can be parameterized
 
 For example, ArrayRef[HashRef]
+
+In addition, we have the parameterized types: InstanceOf, ConsumerOf, HasMethods
+
+For example, InstanceOf['MyClass'], ConsumerOf['My::Role'], 
+and HasMethods[qw/foo bar baz/]
 
 =head1 AUTHOR
 

@@ -5,7 +5,7 @@ use Exporter 5.57 'import';
 use Module::Runtime qw(require_module);
 use Carp qw(confess croak);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub register_types {
   my ($type_definitions, $into, $moose_namespace) = @_;
@@ -50,7 +50,7 @@ sub make_type {
     return if $full_test->(@_);
     local $Carp::Internal{"MooX::Types::MooseLike"} = 1;  ## no critic qw(Variables::ProhibitPackageVars)
     confess $type_definition->{message}->(@_) ;  ## no critic qw(ErrorHandling::RequireUseOfExceptions)
-  };
+    };
 
   my $full_name =
     $moose_namespace
@@ -60,36 +60,30 @@ sub make_type {
   $Moo::HandleMoose::TYPE_MAP{$isa} = sub {
     require_module($moose_namespace) if $moose_namespace;
     Moose::Util::TypeConstraints::find_type_constraint($full_name);
-  };
+    };
 
   return {
     type => sub {
 
+      my $param = $_[0];
+
       # If we have a parameterized type then we want to check its values
-      if ( $_[0]
-        && ref($_[0]) eq 'ARRAY'
-        && $_[0]->[0]
-        && ref($_[0]->[0])
-        && (ref($_[0]->[0]) eq 'CODE'))
-      {
+      if (ref($param) eq 'ARRAY') {
         my $coderef           = $_[0]->[0];
         my $parameterized_isa = sub {
-          $isa->(@_);
+          if(ref($coderef) eq 'CODE') {
+            $isa->(@_);
 
-          # A dispatch table that gets the values for each parameterized type
-          my %parameter_values = (
-            ArrayRef  => sub { @{ $_[0] } },
-            HashRef   => sub { values %{ $_[0] } },
-            ScalarRef => sub { ${ $_[0] } },
-            Maybe     => sub { return if (not defined $_[0]); $_[0] },
-            );
-          my @values = $parameter_values{ $type_definition->{name} }->(@_);
-
-          # Run the type coderef on each value
-          foreach my $value (@values) {
-            $coderef->($value);
+            # Run the type coderef on each value
+            my @values = $type_definition->{parameterizable}->(@_);
+            foreach my $value (@values) {
+              $coderef->($value);
+            }
           }
-        };
+          else {
+            $isa->(@_, @{$param});
+          }
+          };
 
         # Remove old $isa, but return the rest of the arguments
         # so any specs defined after 'isa' don't get lost
@@ -97,12 +91,11 @@ sub make_type {
         return ($parameterized_isa, @_);
       }
       else {
-        my @args = @_;
-        return (sub { $isa->(@_, @args); }, @_);
+        return $isa;
       }
-    },
+      },
     is_type => sub { $full_test->(@_) },
-  };
+    };
 }
 
 1;
@@ -150,15 +143,17 @@ MooX::Types::MooseLike - some Moosish types and a type builder
     );
 
     has string => (
+      is  => 'ro',
       isa => MyLengthTypeWithParam(25)
     );
-
 
 =head1 DESCRIPTION
 
 See L<MooX::Types::MooseLike::Base> for an example of how to build base types.
 
 See L<MooX::Types::MooseLike::Numeric> for an example of how to build subtypes.
+
+See L<MooX::Types::SetObject> for an example of how to build parameterized types.
 
 =head1 AUTHOR
 
@@ -167,8 +162,12 @@ mateu - Mateu X. Hunter (cpan:MATEU) <hunter@missoula.org>
 =head1 CONTRIBUTORS
 
 mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
+
 Mithaldu - Christian Walde (cpan:MITHALDU) <walde.christian@googlemail.com>
+
 Matt Phillips (cpan:MATTP) <mattp@cpan.org>
+
+Arthur Axel fREW Schmidt (cpan:FREW) <frioux@gmail.com>
 
 =head1 COPYRIGHT
 
