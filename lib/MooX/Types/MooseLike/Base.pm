@@ -144,10 +144,19 @@ my $type_definitions = [
   {
     name => 'ConsumerOf',
     test => sub {
-      my ($instance, $role) = (shift, shift);
-      $instance->can('does') && $instance->does($role);
+      my ($instance, @roles) = (shift, @_);
+      return if (!$instance->can('does'));
+      my @missing_roles = grep { !$instance->does($_) } @roles;
+      return (scalar @missing_roles ? 0 : 1);
       },
-    message => sub { "$_[0] is not a consumer of the role: $_[1]!" },
+    message => sub { 
+      my $instance = shift;
+      return "$instance is not a consumer of roles" if (!$instance->can('does'));
+      my @missing_roles = grep { !$instance->does($_) } @_;
+      my $s = (scalar @missing_roles) > 1 ? 's' : '';
+      my $missing_roles = join ' ', @missing_roles;
+      return "$instance does not consume the required role${s}: $missing_roles";
+    },
   },
   {
     name => 'HasMethods',
@@ -159,8 +168,9 @@ my $type_definitions = [
     message => sub {
       my $instance = shift;
       my @missing_methods = grep { !$instance->can($_) } @_;
+      my $s = (scalar @missing_methods) > 1 ? 's' : '';
       my $missing_methods = join ' ', @missing_methods;
-      return "$instance does not have the required methods: $missing_methods";
+      return "$instance does not have the required method${s}: $missing_methods";
       },
   },
   ];
@@ -228,8 +238,6 @@ that the guest_list is an array reference, and that the records are an array
 of hash references.
 
 =head1 TYPES (subroutines)
-
-All available types are listed below.
 
 =head2 Any
 
@@ -299,16 +307,45 @@ A type that is either a builtin perl filehandle or an IO::Handle object
 
 A type that is an object (think blessed)
 
-=head2 -Parameterized Types-
+=head1 PARAMETERIZED TYPES
 
-ArrayRef, HashRef and ScalarRef can be parameterized
+=head2 Parameterizing Types With Other Types
+
+The following types can be parameterized with other types.
+
+=head3 ArrayRef
 
 For example, ArrayRef[HashRef]
 
-In addition, we have the parameterized types: InstanceOf, ConsumerOf, HasMethods
+=head3 HashRef
 
-For example, InstanceOf['MyClass'], ConsumerOf['My::Role'], 
-and HasMethods[qw/foo bar baz/]
+=head3 ScalarRef 
+
+=head3 Maybe
+
+For example, Maybe[Int] would be an integer or undef
+ 
+=head2 Parameterizing Types With Strings
+
+In addition, we have some parameterized types that take string arguments.
+
+=head3 InstanceOf
+
+Takes a class name as the argument. For example:
+
+  isa => InstanceOf['MyClass']
+
+=head3 ConsumerOf
+
+Takes a list of role names as the arguments. For example:
+
+  isa => ConsumerOf['My::Role', 'My::AnotherRole'] 
+
+=head3 HasMethods
+
+Takes a list of method names as the arguments. For example:
+
+  isa => HasMethods[qw/postulate contemplate liberate/]
 
 =head1 AUTHOR
 

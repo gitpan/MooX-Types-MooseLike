@@ -22,6 +22,7 @@
    "prereqs" : {
       "build" : {
          "requires" : {
+            "Set::Object" : "1",
             "Test::Fatal" : "0.003",
             "Test::More" : "0.96"
          }
@@ -48,5 +49,5 @@
       },
       "x_IRC" : "irc://irc.perl.org/#web-simple"
    },
-   "version" : "0.11"
+   "version" : "0.12"
 }

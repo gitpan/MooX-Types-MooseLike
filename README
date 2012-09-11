@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
         package MyApp::Types;
-        use MooX::Types::MooseLike::Base;
+        use MooX::Types::MooseLike;
         use base qw(Exporter);
         our @EXPORT_OK = ();
 
@@ -14,14 +14,13 @@ SYNOPSIS
           message => sub { "$_[0] is not the type we want!" }
         },
         {
-          name => 'MyLengthTypeWithParam',
+          name => 'VarChar',
           test => sub {
             my ($value, $param) = @_;
-            length($value) < $param;
+            length($value) <= $param;
           },
-          message => sub { "$_[0] is too large! It should be less than $_[1]." }
-        }
-      ];
+          message => sub { "$_[0] is too large! It should be less than or equal to $_[1]." }
+        }];
 
         # Make the types available - this adds them to @EXPORT_OK automatically.
         MooX::Types::MooseLike::register_types($defs, __PACKAGE__);
@@ -31,7 +30,7 @@ SYNOPSIS
         # Somewhere in code that uses the type
         package MyApp::Foo;
         use Moo;
-        use MyApp::Types qw(MyType);
+        use MyApp::Types qw(MyType VarChar);
         has attribute => (
           is  => 'ro',
           isa => MyType,
@@ -39,12 +38,13 @@ SYNOPSIS
 
         has string => (
           is  => 'ro',
-          isa => MyLengthTypeWithParam(25)
+          isa => VarChar[25]
         );
 
 DESCRIPTION
-    See MooX::Types::MooseLike::Base for an example of how to build base
-    types.
+    See MooX::Types::MooseLike::Base for a list of available base types. Its
+    source also provides an example of how to build base types, along with
+    both parameterizable and non-parameterizable.
 
     See MooX::Types::MooseLike::Numeric for an example of how to build
     subtypes.
