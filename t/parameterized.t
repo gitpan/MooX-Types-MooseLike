@@ -18,7 +18,6 @@
   use MooX::Types::MooseLike::Base qw/ 
     ArrayRef Int HashRef Str ScalarRef Maybe InstanceOf ConsumerOf HasMethods 
   /;
-  use MooX::Types::SetObject qw/ SetObject /;
   with (
     'MooX::Types::MooseLike::Test::Role', 
     'MooX::Types::MooseLike::Test::AnotherRole'
@@ -56,10 +55,6 @@
     is  => 'ro',
     isa => ArrayRef [ Maybe [ HashRef [Int] ] ],
     );
-  has set_object_of_ints => (
-    is  => 'ro',
-    isa => SetObject[Int],
-    );
   has instance_of_IO_Handle => (
     is  => 'ro',
     isa => InstanceOf['IO::Handle'],
@@ -83,7 +78,6 @@ use warnings FATAL => 'all';
 use Test::More;
 use Test::Fatal;
 use IO::Handle;
-use Set::Object;
 
 # ArrayRef[Int]
 ok(MooX::Types::MooseLike::Test->new(an_array_of_integers => [ 6, 7, 10, -1 ]),
@@ -203,23 +197,6 @@ like(
   },
   qr/is not an Int/,
   'a Str is an exception when we want a Maybe[HashRef[Int]]'
-  );
-
-# Set::Object
-ok(
-  MooX::Types::MooseLike::Test->new(
-    set_object_of_ints => Set::Object->new(1,2,3),
-    ),
-  'Set::Object of Int'
-  );
-like(
-  exception {
-    MooX::Types::MooseLike::Test->new(
-      set_object_of_ints => Set::Object->new('fREW'),
-      )
-  },
-  qr(fREW is not an Integer),
-  'Int eror mesage is triggered when validation fails'
   );
 
 # InstanceOf
