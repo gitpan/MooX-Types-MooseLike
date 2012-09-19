@@ -1,3 +1,6 @@
+0.14 - 2012-09-19
+      - Remove pesky Set::Object from build requirements
+
 0.13 - 2012-09-18
       - Only test SetObject when Set::Object is already installed
 
