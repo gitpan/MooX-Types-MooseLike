@@ -2,10 +2,12 @@ package MooX::Types::MooseLike;
 use strict;
 use warnings FATAL => 'all';
 use Exporter 5.57 'import';
+our @EXPORT_OK = ();
+push @EXPORT_OK, 'exception_message';
 use Module::Runtime qw(require_module);
 use Carp qw(confess croak);
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 sub register_types {
   my ($type_definitions, $into, $moose_namespace) = @_;
@@ -97,6 +99,12 @@ sub make_type {
     is_type => sub { $full_test->(@_) },
     };
 }
+
+sub exception_message {
+  my ($attribute_value, $type) = @_;
+  $attribute_value = defined $attribute_value ? $attribute_value : 'undef';
+  return "${attribute_value} is not ${type}!";
+} 
 
 1;
 __END__

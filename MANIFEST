@@ -11,8 +11,10 @@ t/builder.t
 t/default.t
 t/numeric.t
 t/parameterized.t
+t/parameterized_with_string.t
 t/required.t
 t/set_object.t
+t/version.t
 META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)
 README                                   README file (added by Distar)
