@@ -7,7 +7,7 @@ push @EXPORT_OK, 'exception_message';
 use Module::Runtime qw(require_module);
 use Carp qw(confess croak);
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub register_types {
   my ($type_definitions, $into, $moose_namespace) = @_;
@@ -104,7 +104,7 @@ sub exception_message {
   my ($attribute_value, $type) = @_;
   $attribute_value = defined $attribute_value ? $attribute_value : 'undef';
   return "${attribute_value} is not ${type}!";
-} 
+}
 
 1;
 __END__
