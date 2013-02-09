@@ -7,7 +7,7 @@ use MooX::Types::MooseLike qw(exception_message);
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
 
-our $VERSION = 0.17;
+our $VERSION = 0.18;
 
 # These types act like those found in Moose::Util::TypeConstraints.
 # Generally speaking, the same test is used.
@@ -169,7 +169,7 @@ sub filehandle_type_definitions {
     );
 }
 
-sub blessed_type_definitions {
+sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplexity)
   return
     (
     {
@@ -246,21 +246,18 @@ sub logic_type_definitions {
       name => 'AnyOf',
       test => sub {
         my ($value, @types) = @_;
-        return if not defined $value;
         foreach my $type (@types) {
-            my $is_type = 'is_' . $type;
-            {
-              no strict 'refs';    ## no critic qw(TestingAndDebugging::ProhibitNoStrict)
-              return 1 if &{$is_type}($value);
-            }
+          return 1 if (eval {$type->($value); 1;});
         }
         return;
         },
-      message => sub {
-        my ($value, @types) = @_;
-        return "No value given" if not defined $value;
-        return "Value: $value is not any of ", join(', ', @types);
-        },
+      message => sub { return exception_message($_[0], 'any of the types') },
+    },
+    {
+      name => 'AllOf',
+      test => sub { return 1; },
+      message => sub { 'AllOf only uses its parameterized type messages' },
+      parameterizable => sub { $_[0] },
     },
     );
 }
@@ -437,6 +434,8 @@ Uses C<blessed> and C<isa> to do so.
 Takes a list of class names as the argument. For example:
 
   isa => InstanceOf['MyClass','MyOtherClass']
+  
+Note: InstanceOf is passed an ArrayRef[Str]
 
 =head3 ConsumerOf
 
@@ -457,9 +456,22 @@ Takes a list of method names as the arguments. For example:
 =head3 AnyOf
 
 Check if the attribute is any of the listed types (think union)
-Takes a list of (non-parameterized) types as the argument. For example:
+Takes a list of types as the argument. For example:
 
-  isa => AnyOf['Str','CodeRef']
+  isa => AnyOf[Int, ArrayRef[Int], HashRef[Int]]
+
+Note: AnyOf is passed an ArrayRef[CodeRef]
+
+=head3 AllOf
+
+Check if the attribute is all of the listed types (think intersection)
+Takes a list of types as the argument. For example:
+
+  isa => AllOf[
+    InstanceOf['Human'], 
+    ConsumerOf['Air'], 
+    HasMethods['breath', 'dance']
+  ],
 
 =head1 AUTHOR
 
@@ -471,7 +483,7 @@ mst has provided critical guidance on the design
 
 =head1 COPYRIGHT
 
-Copyright 2011, 2012 Mateu Hunter
+Copyright 2011-2013 Mateu Hunter
 
 =head1 LICENSE
 

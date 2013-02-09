@@ -6,8 +6,9 @@ our @EXPORT_OK = ();
 push @EXPORT_OK, 'exception_message';
 use Module::Runtime qw(require_module);
 use Carp qw(confess croak);
+use List::Util qw(first);
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 sub register_types {
   my ($type_definitions, $into, $moose_namespace) = @_;
@@ -67,23 +68,33 @@ sub make_type {
   return {
     type => sub {
 
-      my $param = $_[0];
-
       # If we have a parameterized type then we want to check its values
-      if (ref($param) eq 'ARRAY') {
-        my $coderef           = $_[0]->[0];
+      if (ref($_[0]) eq 'ARRAY') {
+        my @params = @{$_[0]};
         my $parameterized_isa = sub {
-          if(ref($coderef) eq 'CODE') {
-            $isa->(@_);
 
-            # Run the type coderef on each value
-            my @values = $type_definition->{parameterizable}->(@_);
-            foreach my $value (@values) {
-              $coderef->($value);
+          # Check if all params are coderefs
+          if (my $parameterizer = $type_definition->{parameterizable}) {
+
+            # Can we assume @params is a list of coderefs?
+            if(first { (ref($_) ne 'CODE') } @params) {
+              croak "Invalid parameterized type! All parameters must be coderefs";
+            }
+
+          # Check the containing type. We could pass @_, but it is meant to
+          # always be such that: scalar @_ = 1 in this context.  In other words,
+          # we have only one thing to type check at a time.
+            $isa->($_[0]);
+
+            # Run the nested type coderefs on each value
+            foreach my $coderef (@params) {
+              foreach my $value ($parameterizer->($_[0])) {
+                $coderef->($value);
+              }
             }
           }
           else {
-            $isa->(@_, @{$param});
+            $isa->($_[0], @params);
           }
           };
 
