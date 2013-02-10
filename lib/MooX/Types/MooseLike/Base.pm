@@ -7,7 +7,7 @@ use MooX::Types::MooseLike qw(exception_message);
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
 
-our $VERSION = 0.18;
+our $VERSION = 0.19;
 
 # These types act like those found in Moose::Util::TypeConstraints.
 # Generally speaking, the same test is used.
@@ -235,6 +235,19 @@ sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplex
         my $missing_methods = join ' ', @missing_methods;
         return "$instance does not have the required method${s}: $missing_methods";
         },
+    },
+    {
+      name => 'Enum',
+      test => sub {
+        my ($value, @possible_values) = @_;
+        return if not defined $value;
+        return List::Util::first { $value eq $_ } @possible_values;
+        },
+      message => sub {
+        my ($value, @possible_values) = @_;
+        my $possible_values = join(', ', @possible_values);
+        return exception_message($value, "any of the possible values: ${possible_values}");
+      },
     },
     );
 }
