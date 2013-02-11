@@ -8,7 +8,7 @@ use Module::Runtime qw(require_module);
 use Carp qw(confess croak);
 use List::Util qw(first);
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 sub register_types {
   my ($type_definitions, $into, $moose_namespace) = @_;
@@ -73,17 +73,18 @@ sub make_type {
         my @params = @{$_[0]};
         my $parameterized_isa = sub {
 
-          # Check if all params are coderefs
+          # Types that take other types as a parameter have a parameterizable
+          # part with the one exception: 'AnyOf'
           if (my $parameterizer = $type_definition->{parameterizable}) {
 
             # Can we assume @params is a list of coderefs?
-            if(first { (ref($_) ne 'CODE') } @params) {
-              croak "Invalid parameterized type! All parameters must be coderefs";
+            if(my $culprit = first { (ref($_) ne 'CODE') } @params) {
+              croak "Expect all parameters to be coderefs, but found: $culprit";
             }
 
-          # Check the containing type. We could pass @_, but it is meant to
-          # always be such that: scalar @_ = 1 in this context.  In other words,
-          # we have only one thing to type check at a time.
+            # Check the containing type. We could pass @_, but it is such that: 
+            # scalar @_ = 1 always in this context.  In other words,
+            # an $isa only type checks one thing at a time.
             $isa->($_[0]);
 
             # Run the nested type coderefs on each value
@@ -94,6 +95,10 @@ sub make_type {
             }
           }
           else {
+            # Note that while $isa only checks on value at a time
+            # We can pass it additional parameters as we do here.
+            # These additional parameters are then used in the type definition
+            # For example, see InstanceOf
             $isa->($_[0], @params);
           }
           };
