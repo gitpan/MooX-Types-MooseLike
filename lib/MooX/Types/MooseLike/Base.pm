@@ -7,7 +7,7 @@ use MooX::Types::MooseLike qw( exception_message inflate_type );
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
 
-our $VERSION = 0.23;
+our $VERSION = 0.24;
 
 # These types act like those found in Moose::Util::TypeConstraints.
 # Generally speaking, the same test is used.
@@ -70,7 +70,17 @@ sub defined_type_definitions {
     },
     {
       name    => 'Num',
-      test    => sub { defined $_[0] and Scalar::Util::looks_like_number($_[0]) },
+      test    => sub { 
+          my $val = $_[0];
+          defined $val and 
+        ($val =~ /\A[+-]?[0-9]+\z/) ||
+        ( $val =~ /\A(?:[+-]?)            # matches optional +- in the beginning
+          (?=[0-9]|\.[0-9])               # matches previous +- only if there is something like 3 or .3
+          [0-9]*                          # matches 0-9 zero or more times
+          (?:\.[0-9]+)?                   # matches optional .89 or nothing
+          (?:[Ee](?:[+-]?[0-9]+))?        # matches E1 or e1 or e-1 or e+1 etc
+          \z/x );
+      },
       message => sub {
         my $nbr = shift;
         if (not defined $nbr) {
@@ -170,17 +180,6 @@ sub ref_type_definitions {
       name => 'GlobRef',
       test => sub { defined $_[0] and ref($_[0]) eq 'GLOB' },
       message => sub { return exception_message($_[0], 'a GlobRef') },
-    },
-    {
-      name => 'AHRef',
-      test => sub {
-        defined $_[0] and
-          (ref($_[0]) eq 'ARRAY')
-          and ($_[0]->[0])
-          and (List::Util::first { ref($_) eq 'HASH' } @{ $_[0] });
-        },
-      message => sub { return exception_message($_[0], 'an ArrayRef[HashRef]') },
-      inflate => 0,
     },
     );
 }
@@ -421,7 +420,7 @@ This module provides some basic types for this property.
 One can import all types with ':all' tag or import
 a list of types like:
 
-    use MooX::Types::MooseLike::Base qw/HashRef CodeRef/;
+    use MooX::Types::MooseLike::Base qw/HashRef ArrayRef/;
 
 so one could then declare some attributtes like:
 
@@ -431,16 +430,11 @@ so one could then declare some attributtes like:
 	);
 	has 'guest_list' => (
 	  is => 'ro',
-	  isa => ArrayRef,
-	);
-	has 'records' => (
-	  is => 'ro',
-	  isa => ArrayRef[Int],
+	  isa => ArrayRef[HashRef],
 	);
 
-These types provide a check that the contact attribute is a hash reference,
-that the guest_list is an array reference, and that the records are an array
-of hash references.
+These types provide a check that the I<contact> attribute is a C<hash> reference,
+and that the I<guest_list> is an C<array of hash> references.
 
 =head1 TYPES (1st class functions - return a coderef)
 
@@ -534,8 +528,8 @@ For example, Maybe[Int] would be an integer or undef
 
 =head3 AnyOf
 
-Check if the attribute is any of the listed types (think union)
-Takes a list of types as the argument. For example:
+Check if the attribute is any of the listed types (think union).
+Takes a list of types as the argument, for example:
 
   isa => AnyOf[Int, ArrayRef[Int], HashRef[Int]]
 
