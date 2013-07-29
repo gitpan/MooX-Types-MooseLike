@@ -7,7 +7,7 @@ use MooX::Types::MooseLike qw( exception_message inflate_type );
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
 
-our $VERSION = 0.24;
+our $VERSION = 0.25;
 
 # These types act like those found in Moose::Util::TypeConstraints.
 # Generally speaking, the same test is used.
@@ -211,14 +211,14 @@ sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplex
       name => 'InstanceOf',
       test => sub {
         my ($instance, @classes) = (shift, @_);
-        return if not $instance;
+        return if not defined $instance;
         return if not blessed($instance);
         my @missing_classes = grep { !$instance->isa($_) } @classes;
         return (scalar @missing_classes ? 0 : 1);
         },
       message => sub {
         my $instance = shift;
-        return "No instance given" if not $instance;
+        return "No instance given" if not defined $instance;
         return "$instance is not blessed" if not blessed($instance);
         my @missing_classes = grep { !$instance->isa($_) } @_;
         my $s = (scalar @missing_classes) > 1 ? 'es' : '';
@@ -249,7 +249,7 @@ sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplex
       name => 'ConsumerOf',
       test => sub {
         my ($instance, @roles) = (shift, @_);
-        return if not $instance;
+        return if not defined $instance;
         return if not blessed($instance);
         return if (!$instance->can('does'));
         my @missing_roles = grep { !$instance->does($_) } @roles;
@@ -257,7 +257,7 @@ sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplex
         },
       message => sub {
         my $instance = shift;
-        return "No instance given" if not $instance;
+        return "No instance given" if not defined $instance;
         return "$instance is not blessed" if not blessed($instance);
         return "$instance is not a consumer of roles" if (!$instance->can('does'));
         my @missing_roles = grep { !$instance->does($_) } @_;
@@ -290,14 +290,14 @@ sub blessed_type_definitions {## no critic qw(Subroutines::ProhibitExcessComplex
       name => 'HasMethods',
       test => sub {
         my ($instance, @methods) = (shift, @_);
-        return if not $instance;
+        return if not defined $instance;
         return if not blessed($instance);
         my @missing_methods = grep { !$instance->can($_) } @methods;
         return (scalar @missing_methods ? 0 : 1);
         },
       message => sub {
         my $instance = shift;
-        return "No instance given" if not $instance;
+        return "No instance given" if not defined $instance;
         return "$instance is not blessed" if not blessed($instance);
         my @missing_methods = grep { !$instance->can($_) } @_;
         my $s = (scalar @missing_methods) > 1 ? 's' : '';
