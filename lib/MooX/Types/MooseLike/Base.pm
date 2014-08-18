@@ -7,7 +7,7 @@ use MooX::Types::MooseLike qw( exception_message inflate_type );
 use Exporter 5.57 'import';
 our @EXPORT_OK = ();
 
-our $VERSION = 0.25;
+our $VERSION = 0.26;
 
 # These types act like those found in Moose::Util::TypeConstraints.
 # Generally speaking, the same test is used.
@@ -422,7 +422,7 @@ a list of types like:
 
     use MooX::Types::MooseLike::Base qw/HashRef ArrayRef/;
 
-so one could then declare some attributtes like:
+so one could then declare some attributes like:
 
 	has 'contact' => (
 	  is => 'ro',
